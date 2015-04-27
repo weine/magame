@@ -7,6 +7,7 @@
 </head>
 <body>
 	<div style="width:800px;margin:0 auto;">
+	<!-- <canvas id="chr" width="800" height="600"></canvas> -->
 	<canvas id="maze" width="800" height="600" style="background:#000000;"></canvas>
 	</div>
 	<!--
@@ -22,13 +23,18 @@
 	var cY = 40;
 	var ocX = 40;
 	var ocY = 40;
-	var im = 2; //偏移量
+	var im = 1; //偏移量
 	var imX;
 	var imY;
 	var cxt;
 	var c;
 	var character = new Image();
+	var backCA = new Image();
 	var loopAct;
+	var flag = 2;
+	var back = new Image();
+	var backCA = new Image();
+
 
 	var getMousePos = function(cv, e){
 		var rect = cv.getBoundingClientRect();
@@ -46,6 +52,8 @@
 		canvasSpace();
 
 		makeCA(cX,cY);
+		//backCA = cxt.getImageData(ocX, ocY, 12, 12);
+		cxt.putImageData(character, cX, cY);
 
 		// $("body").keydown(function(event){
 		// 	moveCA(event);
@@ -61,7 +69,9 @@
 
 			moveVal(mX, mY);
 
-			loopAct = setInterval(moveCA2, 10);
+			loopAct = setInterval(moveCA2, 20);
+
+			//loopAct = setInterval(gameLoop, 10);
 
 			//makeCA(mX, mY);
 			//alert("( " + mX + " , " + mY + " )");
@@ -70,29 +80,60 @@
 	});
 
 
-
+	//場景
 	function canvasSpace()
 	{
 		//c = document.getElementById("maze");
 		c = $("#maze");
 		cxt = c[0].getContext("2d");
-		cxt.fillStyle = "#FFFFFF";
+		
+
+		cxt.strokeStyle = "rgb(123,123,123)";
+		cxt.lineWidth = 5;
+
+		cxt.moveTo(0, 60);
+		cxt.lineTo(250, 60);
+		cxt.lineTo(250, 100);
+		cxt.lineTo(0,100);
+
+		
+
+		cxt.moveTo(400, 0);
+		cxt.lineTo(400, 200);
+		cxt.lineTo(200,200);
+		cxt.lineTo(200, 150);
+		cxt.lineTo(350, 150);
+		cxt.lineTo(350, 0);
+		
+		cxt.moveTo(100, 300);
+		cxt.lineTo(400, 300);
+		cxt.lineTo(400, 450);
+		cxt.lineTo(300, 450);
+		cxt.lineTo(300, 350);
+		cxt.lineTo(100, 350);
+		cxt.lineTo(100,300);
+
+
+		cxt.stroke();
+
+		back = cxt.getImageData(0, 0, c[0].width, c[0].height);
 	}
 
+
+	//產生操控角色
 	function makeCA(PosX,PosY)
 	{
-		cxt.clearRect(0, 0, c.width(), c.height());
-		ocX = PosX;
-		ocY = PosY;
+		cxt.clearRect(0, 0, c[0].width, c[0].height);
+		cxt.putImageData(back, 0, 0);
+		
+		cX = PosX;
+		cY = PosY;
 		cxt.fillStyle = "#FFFFFF";
 		cxt.beginPath();
 		cxt.arc(PosX, PosY, 12, 0, Math.PI * 2, true);
 		cxt.closePath();
 		cxt.fill();
-
-		character = cxt.getImageData(PosX, PosY, 30, 30);
-
-		cxt.putImageData(character, PosX, PosY);
+		character = cxt.getImageData(PosX, PosY, 12, 12);
 	}
 
 	function moveCA(event)
@@ -135,6 +176,10 @@
 
 	function moveCA2()
 	{
+		ocX = cX;
+		ocY = cY;
+		backCA = cxt.getImageData(ocX, ocY, 12, 12);
+
 		cX += imX;
 		cY += imY;
 
@@ -149,6 +194,15 @@
 		}
 
 		makeCA(cX, cY);
+
+		collideTest();
+		
+		if(flag == 0)
+		{
+			flag = 1;
+			return;
+		}
+		cxt.putImageData(character, cX, cY);
 	}
 
 	function moveVal(posX, posY)
@@ -163,6 +217,38 @@
 		imX = (targetX/ra)*im;
 		imY = (targetY/ra)*im;
 
+	}
+
+	function collideTest()
+	{
+		var caWidth = 13;
+		var caDepth = 13;
+		var caLength = caWidth * caDepth;
+		var tmpoffset = 1;
+		var colPic = cxt.getImageData(cX , cY, caWidth + tmpoffset, caDepth + tmpoffset);
+
+		for(var i = 0; i < caLength * 4; i += 4)
+		{
+			if(colPic.data[i] == 123 && colPic.data[i+1] == 123 && colPic.data[i+2] == 123)
+			{
+				cxt.putImageData(backCA, ocX, ocY);
+				cX = ocX;
+				cY = ocY;
+				flag = 0;
+				clearInterval(loopAct);
+				//alert("Bomb!!!");
+				break;
+			}
+		}
+
+	}
+
+
+	function gameLoop()
+	{
+		cxt.putImageData(back, ocX, ocY);
+
+		cxt.putImageData(character, cX, cY);
 	}
 	
 
