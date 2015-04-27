@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Test View</title>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+</head>
+<body>
+	<div style="width:800px;margin:0 auto;">
+	<canvas id="maze" width="800" height="600" style="background:#000000;"></canvas>
+	</div>
+	<!--
+	<div id="ccmap" style="width:100px;height:100px;border:2px solid #642100;margin:0 auto;">
+		<div id="sq" style="width:10px;height:10px;background-color:#3C3C3C;position: relative;left:0px;top:0px;"></div>
+	</div>
+	-->
+</body>
+<script type="text/javascript">
+	var mX;
+	var mY;
+	var cX = 40;
+	var cY = 40;
+	var ocX = 40;
+	var ocY = 40;
+	var im = 2; //偏移量
+	var imX;
+	var imY;
+	var cxt;
+	var c;
+	var character = new Image();
+	var loopAct;
+
+	var getMousePos = function(cv, e){
+		var rect = cv.getBoundingClientRect();
+		return {
+			x: e.clientX - rect.left,//相對於Canvas左上角的X座標
+			y: e.clientY - rect.top,//相對於Canvas左上角的Y座標
+			rectLeft : rect.left,
+			rectTop : rect.top,
+			clientX : e.clientX,
+			clientY : e.clientY
+		}
+	};
+
+	$(function(){
+		canvasSpace();
+
+		makeCA(cX,cY);
+
+		// $("body").keydown(function(event){
+		// 	moveCA(event);
+		// 	makeCA(cX, cY);
+		// });
+
+		$("#maze").click(function(e){
+			clearInterval(loopAct);
+
+			var pos = getMousePos(c[0], e);
+			mX = pos.x;
+			mY = pos.y;
+
+			moveVal(mX, mY);
+
+			loopAct = setInterval(moveCA2, 10);
+
+			//makeCA(mX, mY);
+			//alert("( " + mX + " , " + mY + " )");
+		});
+
+	});
+
+
+
+	function canvasSpace()
+	{
+		//c = document.getElementById("maze");
+		c = $("#maze");
+		cxt = c[0].getContext("2d");
+		cxt.fillStyle = "#FFFFFF";
+	}
+
+	function makeCA(PosX,PosY)
+	{
+		cxt.clearRect(0, 0, c.width(), c.height());
+		ocX = PosX;
+		ocY = PosY;
+		cxt.fillStyle = "#FFFFFF";
+		cxt.beginPath();
+		cxt.arc(PosX, PosY, 12, 0, Math.PI * 2, true);
+		cxt.closePath();
+		cxt.fill();
+
+		character = cxt.getImageData(PosX, PosY, 30, 30);
+
+		cxt.putImageData(character, PosX, PosY);
+	}
+
+	function moveCA(event)
+	{
+				switch(event.keyCode)
+				{
+					case 37:
+						cX -= im;
+						
+						if(cX < 0 )
+						{
+							cX = 0;
+						}
+						break;
+					case 39:
+						cX += im;
+						if(cX > 800)
+						{
+							cX = 800;
+						}
+						break;
+
+					case 38:
+						cY -= im;
+						if(cY < 0 )
+						{
+							cY = 0;
+						}
+						break;
+
+					case 40:
+						cY += im;
+						if(cY > 600 )
+						{
+							cY = 600;
+						}
+						break;
+				}
+	}
+
+	function moveCA2()
+	{
+		cX += imX;
+		cY += imY;
+
+		if((imX > 0 && cX > mX)
+			|| (imX < 0 && cX < mX)
+			|| (imY > 0 && cY > mY)
+			|| (imY < 0 && cY < mY))
+		{
+			cX = mX;
+			cY = mY;
+			clearInterval(loopAct);
+		}
+
+		makeCA(cX, cY);
+	}
+
+	function moveVal(posX, posY)
+	{
+		targetX = posX - cX;
+		targetY = posY - cY;
+
+		//計算斜邊
+		var ra = Math.sqrt(Math.pow(targetX, 2) + Math.pow(targetY, 2));
+
+		//計算sin、cos
+		imX = (targetX/ra)*im;
+		imY = (targetY/ra)*im;
+
+	}
+	
+
+	// $(function(){
+	// 	var sqPosX = 0;
+	// 	var sqPosY = 0;
+	// 	var im = 5;
+
+	// 	$("body").keydown(function(event){
+
+			
+	// 		switch(event.keyCode)
+	// 		{
+	// 			case 37:
+	// 				sqPosX -= im;
+	// 				$("#PosX").text(sqPosX);
+	// 				if(sqPosX < 0 )
+	// 				{
+	// 					sqPosX = 0;
+	// 				}
+	// 				$("#sq").animate({left: sqPosX+"px"},30);
+	// 				break;
+	// 			case 39:
+	// 				sqPosX += im;
+	// 				$("#PosX").text(sqPosX);
+	// 				if(sqPosX > 90)
+	// 				{
+	// 					sqPosX = 90;
+	// 				}
+	// 				$("#sq").animate({left: sqPosX+"px"},30);
+	// 				break;
+
+	// 			case 38:
+	// 				sqPosY -= im;
+	// 				$("#PosY").text(sqPosY);
+	// 				if(sqPosY < 0 )
+	// 				{
+	// 					sqPosY = 0;
+	// 				}
+	// 				$("#sq").animate({top: sqPosY+"px"},30);
+	// 				break;
+
+	// 			case 40:
+	// 				sqPosY += im;
+	// 				$("#PosY").text(sqPosY);
+	// 				if(sqPosY > 90 )
+	// 				{
+	// 					sqPosY = 90;
+	// 				}
+	// 				$("#sq").animate({top: sqPosY+"px"},30);
+	// 				break;
+	// 		}
+			
+			
+	// 	});
+		
+	// });
+</script>
+</html>
