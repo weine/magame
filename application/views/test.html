@@ -53,7 +53,7 @@
 
 		makeCA(cX,cY);
 		//backCA = cxt.getImageData(ocX, ocY, 12, 12);
-		cxt.putImageData(character, cX, cY);
+		//cxt.putImageData(character, cX, cY);
 
 		// $("body").keydown(function(event){
 		// 	moveCA(event);
@@ -130,10 +130,10 @@
 		cY = PosY;
 		cxt.fillStyle = "#FFFFFF";
 		cxt.beginPath();
-		cxt.arc(PosX, PosY, 12, 0, Math.PI * 2, true);
+		cxt.arc(PosX, PosY, 15, 0, Math.PI * 2, true);
 		cxt.closePath();
 		cxt.fill();
-		character = cxt.getImageData(PosX, PosY, 12, 12);
+		character = cxt.getImageData(PosX-15, PosY-15, 30, 30);
 	}
 
 	function moveCA(event)
@@ -178,7 +178,7 @@
 	{
 		ocX = cX;
 		ocY = cY;
-		backCA = cxt.getImageData(ocX, ocY, 12, 12);
+		//backCA = cxt.getImageData(ocX, ocY, 12, 12);
 
 		cX += imX;
 		cY += imY;
@@ -202,7 +202,7 @@
 			flag = 1;
 			return;
 		}
-		cxt.putImageData(character, cX, cY);
+		//cxt.putImageData(character, cX, cY);
 	}
 
 	function moveVal(posX, posY)
@@ -225,13 +225,13 @@
 		var caDepth = 13;
 		var caLength = caWidth * caDepth;
 		var tmpoffset = 1;
-		var colPic = cxt.getImageData(cX , cY, caWidth + tmpoffset, caDepth + tmpoffset);
+		var colPic = cxt.getImageData(cX-15, cY-15, 10, 100);
 
 		for(var i = 0; i < caLength * 4; i += 4)
 		{
 			if(colPic.data[i] == 123 && colPic.data[i+1] == 123 && colPic.data[i+2] == 123)
 			{
-				cxt.putImageData(backCA, ocX, ocY);
+				//cxt.putImageData(backCA, ocX, ocY);
 				cX = ocX;
 				cY = ocY;
 				flag = 0;

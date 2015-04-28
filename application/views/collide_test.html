@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>碰撞測試</title>
+	<script type="text/javascript" src="{js}/jquery-1.11.2.min.js"></script>
+</head>
+<body>
+	<div id="container" style="width:800px;margin: 0 auto;">
+		<div>X:<span id="cx"></span> , Y:<span id="cy"></span></div>
+		<div>tX:<span id="mx"></span> , tY:<span id="my"></span></div>
+		<canvas id="cot" width="800" height="600" style="background:#000000">This browser can not use canvas!</canvas>
+	</div>
+</body>
+<script type="text/javascript">
+	var canvas;
+	var c;
+	var pos;
+	var cX = 100;
+	var cY = 100;
+	var r = 20;
+	var loopAct;
+	var im = 2;
+	var speed = 20;
+	var acter = new Image();
+	var mX;
+	var mY;
+	var ix;
+	var iy;
+	var pX;
+	var pY;
+
+	$(function(){
+		cSpace();
+		$("#cx").html(cX);
+		$("#cy").html(cY);
+
+		acter = acter_cir(100, 100, 20, "rgb(255,255,0)");
+		//var acter2 = acter_cir(300, 150, 50, "rgb(100,200,10)");
+
+		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		c.putImageData(acter, 80, 80);
+
+		$("#cot").click(function(e){
+
+			clearInterval(loopAct);
+			pos = getMousePos(canvas[0], e);
+
+			mX = pos.x;
+			mY = pos.y;
+			$("#mx").html(mX);
+			$("#my").html(mY);
+
+			var acterMoveVal = moveVal(cX, cY, mX, mY);
+			ix = acterMoveVal.ix;
+			iy = acterMoveVal.iy;
+
+			loopAct = setInterval(moveProcess, 20);
+		});
+
+	});
+
+	var getMousePos = function(cv, e){
+		var rect = cv.getBoundingClientRect();
+		return {
+			x: e.clientX - rect.left,//相對於Canvas左上角的X座標
+			y: e.clientY - rect.top,//相對於Canvas左上角的Y座標
+			rectLeft : rect.left,
+			rectTop : rect.top,
+			clientX : e.clientX,
+			clientY : e.clientY
+		}
+	};
+
+	function cSpace()
+	{
+		canvas = $("#cot");
+		c = canvas[0].getContext("2d");
+	}
+
+	function acter_cir(x, y, r, color)
+	{
+		c.fillStyle = color;
+		c.beginPath();
+		c.arc(x, y, r, 0, Math.PI * 2, true);
+		c.closePath();
+		c.fill();
+
+		return c.getImageData(x-r, y-r, 2*r, 2*r);
+	}
+
+	function moveProcess()
+	{
+		cX += ix;
+		cY += iy;
+
+		$("#cx").html(Math.floor(cX));
+		$("#cy").html(Math.floor(cY));
+
+		if((ix > 0 && Math.floor(cX) > mX)
+			|| (ix < 0 && Math.floor(cX) < mX)
+			|| (iy > 0 && Math.floor(cY) > mY)
+			|| (iy < 0 && Math.floor(cY) < mY))
+		{
+			cX -= ix;
+			cY -= iy;
+			clearInterval(loopAct);
+		}
+
+		pX = cX-20;
+		pY = cY-20;
+
+		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		c.putImageData(acter, pX, pY);
+
+	}
+
+	function moveVal(sX, sY, eX, eY)
+	{
+		var ma = eX - sX;
+		var mb = eY - sY;
+
+		//計算斜邊
+		var ra = Math.sqrt(Math.pow(ma, 2) + Math.pow(mb, 2));
+
+		//計算sin、cos
+		imX = (ma/ra)*im;
+		imY = (mb/ra)*im;
+
+		return {ix : imX, iy : imY};
+	}
+
+
+</script>
+</html>

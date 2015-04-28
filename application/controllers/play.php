@@ -2,10 +2,13 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Play extends CI_Controller
 {
+	public $data;
+
 	public function __construct()
 	{
 		parent::__construct();
-
+		$this->data = array("js" => base_url("asset/js"), 
+							"css" => base_url("asset/css"));
 	}
 
 	public function index()
@@ -19,7 +22,10 @@ class Play extends CI_Controller
 		$this->load->view("test.html");
 	}
 
-
+	public function collide_test()
+	{
+		$this->parser->parse("collide_test.html", $this->data);
+	}
 }
 
 
