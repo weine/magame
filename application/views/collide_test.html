@@ -27,19 +27,24 @@
 	var mY;
 	var ix;
 	var iy;
-	var pX;
-	var pY;
+	var pX = 80;
+	var pY = 80;
+	var back = new Image();
 
 	$(function(){
 		cSpace();
+
 		$("#cx").html(cX);
 		$("#cy").html(cY);
 
-		acter = acter_cir(100, 100, 20, "rgb(255,255,0)");
+		acter = acter_cir(100, 100, 20, "rgb(255,255,255)");
+
 		//var acter2 = acter_cir(300, 150, 50, "rgb(100,200,10)");
 
 		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		c.putImageData(back,0,0);
 		c.putImageData(acter, 80, 80);
+
 
 		$("#cot").click(function(e){
 
@@ -76,6 +81,22 @@
 	{
 		canvas = $("#cot");
 		c = canvas[0].getContext("2d");
+
+		this.wall(520, 200, 40, 300);
+		this.wall(150, 400, 270, 40);
+		
+
+		back = c.getImageData(0, 0, canvas[0].width, canvas[0].height);
+
+	}
+
+	function wall(x, y, width, length)
+	{
+		c.fillStyle = "rgb(123,123,123)";
+		c.beginPath();
+		c.fillRect(x, y, width, length);
+		c.closePath();
+		c.fill();
 	}
 
 	function acter_cir(x, y, r, color)
@@ -91,6 +112,9 @@
 
 	function moveProcess()
 	{
+		var ocX = cX;
+		var ocY = cY;
+
 		cX += ix;
 		cY += iy;
 
@@ -110,7 +134,17 @@
 		pX = cX-20;
 		pY = cY-20;
 
+		if(collideCheck(pX, pY, 2))
+		{
+			clearInterval(loopAct);
+			cX = ocX;
+			cY = ocY;
+			pX = cX-20;
+			pY = cY-20;
+		}
+
 		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		c.putImageData(back, 0, 0);
 		c.putImageData(acter, pX, pY);
 
 	}
@@ -128,6 +162,23 @@
 		imY = (mb/ra)*im;
 
 		return {ix : imX, iy : imY};
+	}
+
+	function collideCheck(x, y, range)
+	{
+		var checkRange = range; //偵測範圍
+		var cWidth = 40 + checkRange;
+		var cHight = 40 + checkRange;
+		var cLength = cWidth*cHight;
+		var colAct = c.getImageData(x, y, cWidth, cHight);
+
+		for(var i=0; i < cLength*4; i+=4)
+		{
+			if(colAct.data[i] == 123 && colAct.data[i+1] == 123 && colAct.data[i+2] == 123)
+			{
+				return true;
+			}
+		}
 	}
 
 
