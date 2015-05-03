@@ -6,30 +6,51 @@
 	<script type="text/javascript" src="{js}/jquery-1.11.2.min.js"></script>
 </head>
 <body>
+	
 	<div id="container" style="width:800px;margin: 0 auto;">
+		<audio autoplay="autoplay" controls="controls">
+		<source src="{sounds}/Escape.mp3">
+		</audio>
 		<div>X:<span id="cx"></span> , Y:<span id="cy"></span></div>
 		<div>tX:<span id="mx"></span> , tY:<span id="my"></span></div>
-		<canvas id="cot" width="800" height="600" style="background:#000000">This browser can not use canvas!</canvas>
+		<canvas id="cot" width="800" height="600" style="position: absolute;z-index:99;">This browser can not use canvas!</canvas>
+		<canvas id="em" width="800" height="600" style="position: absolute;z-index:2;">This browser can not use canvas!</canvas>
+		<canvas id="map" width="800" height="600" style="position: absolute;background:#000000;z-index:1;"></canvas>
+	</div>
+	<div id="msg_mask_f" style="display:none;width:100%;height:100%;opacity:0.8; background:#000000;position:absolute;z-index:100;">
+		<div style="margin-top:150px;color:#FF0000;font-size:60px;text-align:center;"> 你是笨蛋嗎？請重新整理再試一次!!</div>
+	</div>
+
+	<div id="msg_mask_s" style="display:none;width:100%;height:100%;opacity:0.8; background:#000000;position:absolute;z-index:100;">
+		<div style="margin-top:150px;color:#FF0000;font-size:60px;text-align:center;">還好過了，不然就該吃屎了!</div>
 	</div>
 </body>
 <script type="text/javascript">
 	var canvas;
 	var c;
+	var map;
+	var em;
 	var pos;
-	var cX = 100;
-	var cY = 100;
-	var r = 20;
+	var cX = 30;
+	var cY = 270;
+	var r = 12;
 	var loopAct;
 	var im = 2;
-	var speed = 20;
+	var speed = 16; //影格速度
 	var acter = new Image();
+	var enemy = new Image();
 	var mX;
 	var mY;
 	var ix;
 	var iy;
-	var pX = 80;
-	var pY = 80;
+	var pX = cX-r;
+	var pY = cY-r;
 	var back = new Image();
+	var em_flag = 1;
+	var eX = 176;
+	var eY = 260;
+	var emLoopAct;
+	
 
 	$(function(){
 		cSpace();
@@ -37,13 +58,15 @@
 		$("#cx").html(cX);
 		$("#cy").html(cY);
 
-		acter = acter_cir(100, 100, 20, "rgb(255,255,255)");
-
-		//var acter2 = acter_cir(300, 150, 50, "rgb(100,200,10)");
+		acter = acter_cir(cX, cY, r, "rgb(255,255,255)");
 
 		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
-		c.putImageData(back,0,0);
-		c.putImageData(acter, 80, 80);
+		em.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		//c.putImageData(back,0,0);
+		c.putImageData(acter, cX-r, cY-r);
+		em.putImageData(enemy, 200-r, 275-r);
+
+		emLoopAct = setInterval(enemyMoveProcess, speed);
 
 
 		$("#cot").click(function(e){
@@ -60,7 +83,7 @@
 			ix = acterMoveVal.ix;
 			iy = acterMoveVal.iy;
 
-			loopAct = setInterval(moveProcess, 20);
+			loopAct = setInterval(moveProcess, speed);
 		});
 
 	});
@@ -82,21 +105,64 @@
 		canvas = $("#cot");
 		c = canvas[0].getContext("2d");
 
-		this.wall(520, 200, 40, 300);
-		this.wall(150, 400, 270, 40);
-		
+		canvas = $("#map");
+		map = canvas[0].getContext("2d");
 
-		back = c.getImageData(0, 0, canvas[0].width, canvas[0].height);
+		canvas = $("#em");
+		em = canvas[0].getContext("2d");
 
+		//地圖
+		this.wall(0, 0, canvas[0].width, canvas[0].height);
+		this.moveArea(0, 170, 120, 200);
+		this.moveArea(120, 250, 520, 70);
+		this.moveArea(640, 170, 160, 200);
+		this.moveArea(250, 170, 80, 80);
+		this.moveArea(450, 320, 80, 80);
+
+		//敵對目標
+		enemy = this.enemy_cir(200, 275, 2*r, "rgb(255,0,0)");
+
+		//目的地
+		pur = this.purposeArea(770, 250, 20, 40);
+
+	}
+
+	function purposeArea(x, y, width, length)
+	{
+		map.fillStyle = "rgb(0,255,0)";
+		map.beginPath();
+		map.fillRect(x, y, width, length);
+		map.closePath();
+		map.fill();
 	}
 
 	function wall(x, y, width, length)
 	{
-		c.fillStyle = "rgb(123,123,123)";
-		c.beginPath();
-		c.fillRect(x, y, width, length);
-		c.closePath();
-		c.fill();
+		map.fillStyle = "rgb(123,123,123)";
+		map.beginPath();
+		map.fillRect(x, y, width, length);
+		map.closePath();
+		map.fill();
+	}
+
+	function moveArea(x, y, width, length)
+	{
+		map.fillStyle = "rgb(0,0,0)";
+		map.beginPath();
+		map.fillRect(x, y, width, length);
+		map.closePath();
+		map.fill();
+	}
+
+	function enemy_cir(x, y, r, color)
+	{
+		em.fillStyle = color;
+		em.beginPath();
+		em.arc(x, y, r, 0, Math.PI * 2, true);
+		em.closePath();
+		em.fill();
+
+		return em.getImageData(x-r, y-r, 2*r, 2*r);
 	}
 
 	function acter_cir(x, y, r, color)
@@ -108,6 +174,40 @@
 		c.fill();
 
 		return c.getImageData(x-r, y-r, 2*r, 2*r);
+	}
+
+	function enemyMoveProcess()
+	{
+		if(collideCheck(c, eX, eY, 24, 0.2, 255, 255, 255))
+		{
+			clearInterval(emLoopAct);
+			clearInterval(loopAct);
+			$("#msg_mask_f").show();
+			return;
+		}
+
+		var eimX = 3.0;
+		if(em_flag == 1)
+		{
+			if(eX >= 576)
+			{
+				em_flag = 0;
+			}
+			eX += eimX;
+		}
+
+
+		if(em_flag == 0)
+		{
+			if(eX <= 176)
+			{
+				em_flag = 1;
+			}
+			eX -= eimX;
+		}
+
+		em.clearRect(0, 0, canvas[0].width, canvas[0].height);
+		em.putImageData(enemy, eX, eY);
 	}
 
 	function moveProcess()
@@ -131,20 +231,25 @@
 			clearInterval(loopAct);
 		}
 
-		pX = cX-20;
-		pY = cY-20;
+		pX = cX-r;
+		pY = cY-r;
 
-		if(collideCheck(pX, pY, 2))
+		if(collideCheck(map, pX, pY, 12, 0.5, 123, 123, 123))
 		{
 			clearInterval(loopAct);
 			cX = ocX;
 			cY = ocY;
-			pX = cX-20;
-			pY = cY-20;
+			pX = cX-r;
+			pY = cY-r;
+		}
+
+		if(collideCheck(map, pX, pY, 12, 0.5, 0, 255, 0))
+		{
+			clearInterval(loopAct);
+			$("#msg_mask_s").show();
 		}
 
 		c.clearRect(0, 0, canvas[0].width, canvas[0].height);
-		c.putImageData(back, 0, 0);
 		c.putImageData(acter, pX, pY);
 
 	}
@@ -164,17 +269,17 @@
 		return {ix : imX, iy : imY};
 	}
 
-	function collideCheck(x, y, range)
+	function collideCheck(targetSpace, x, y, r, range, colorR, colorG, colorB)
 	{
 		var checkRange = range; //偵測範圍
-		var cWidth = 40 + checkRange;
-		var cHight = 40 + checkRange;
+		var cWidth = 2*r + checkRange;
+		var cHight = 2*r + checkRange;
 		var cLength = cWidth*cHight;
-		var colAct = c.getImageData(x, y, cWidth, cHight);
+		var colAct = targetSpace.getImageData(x, y, cWidth, cHight);
 
 		for(var i=0; i < cLength*4; i+=4)
 		{
-			if(colAct.data[i] == 123 && colAct.data[i+1] == 123 && colAct.data[i+2] == 123)
+			if(colAct.data[i] == colorR && colAct.data[i+1] == colorG && colAct.data[i+2] == colorB)
 			{
 				return true;
 			}

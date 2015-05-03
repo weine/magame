@@ -8,7 +8,9 @@ class Play extends CI_Controller
 	{
 		parent::__construct();
 		$this->data = array("js" => base_url("asset/js"), 
-							"css" => base_url("asset/css"));
+							"css" => base_url("asset/css"),
+							"sounds" => base_url("asset/sounds")
+							);
 	}
 
 	public function index()
