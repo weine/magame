@@ -7,23 +7,34 @@
 </head>
 <body>
 	
-	<div id="container" style="width:800px;margin: 0 auto;">
-		<audio autoplay="autoplay" controls="controls">
-		<source src="{sounds}/Escape.mp3">
+	<div id="container" style="width:800px;margin: 0 auto;cursor:default;">
+		<audio id="bgm" autoplay="autoplay">
+		<source src="{sounds}/KONAMI - Metal Gear Solid Main Theme (1997 E3 Edit) (KCE Japan Sound Team).mp3">
 		</audio>
-		<div>X:<span id="cx"></span> , Y:<span id="cy"></span></div>
-		<div>tX:<span id="mx"></span> , tY:<span id="my"></span></div>
-		<canvas id="cot" width="800" height="600" style="position: absolute;z-index:99;">This browser can not use canvas!</canvas>
-		<canvas id="em" width="800" height="600" style="position: absolute;z-index:2;">This browser can not use canvas!</canvas>
-		<canvas id="map" width="800" height="600" style="position: absolute;background:#000000;z-index:1;"></canvas>
-	</div>
-	<div id="msg_mask_f" style="display:none;width:100%;height:100%;opacity:0.8; background:#000000;position:absolute;z-index:100;">
-		<div style="margin-top:150px;color:#FF0000;font-size:60px;text-align:center;"> 你是笨蛋嗎？請重新整理再試一次!!</div>
+
+		<audio id="fam">
+		<source src="{sounds}/fangyutalianxian.mp3">
+		</audio>
+
+		<audio id="sam">
+		<source src="{sounds}/se_maoudamashii_jingle06.mp3">
+		</audio>
+
+		<!-- <div>X:<span id="cx"></span> , Y:<span id="cy"></span></div>
+		<div>tX:<span id="mx"></span> , tY:<span id="my"></span></div> -->
+		<canvas id="cot" width="800" height="600" style="position: absolute;z-index:12;">This browser can not use canvas!</canvas>
+		<canvas id="em" width="800" height="600" style="position: absolute;z-index:11;">This browser can not use canvas!</canvas>
+		<canvas id="map" width="800" height="600" style="position: absolute;background:#000000;z-index:10;"></canvas>
+		<div id="msg_mask_f" style="display:none;width:800px;height:600px;opacity:0.8; background:#000000;position:absolute;z-index:1;">
+		<div style="line-height:600px;color:#FF0000;font-size:48px;text-align:center;"> 你是笨蛋嗎？請重新整理再試一次!!</div>
+		</div>
+
+		<div id="msg_mask_s" style="display:none;width:800px;height:600px;opacity:0.8; background:#000000;position:absolute;z-index:2;">
+			<div style="line-height:600px;color:#FF0000;font-size:48px;text-align:center;">還好過了，不然就該吃屎了!</div>
+		</div>
 	</div>
 
-	<div id="msg_mask_s" style="display:none;width:100%;height:100%;opacity:0.8; background:#000000;position:absolute;z-index:100;">
-		<div style="margin-top:150px;color:#FF0000;font-size:60px;text-align:center;">還好過了，不然就該吃屎了!</div>
-	</div>
+	
 </body>
 <script type="text/javascript">
 	var canvas;
@@ -53,6 +64,8 @@
 	
 
 	$(function(){
+		
+		$("#bgm")[0].volume = 0.5;
 		cSpace();
 
 		$("#cx").html(cX);
@@ -117,7 +130,7 @@
 		this.moveArea(120, 250, 520, 70);
 		this.moveArea(640, 170, 160, 200);
 		this.moveArea(250, 170, 80, 80);
-		this.moveArea(450, 320, 80, 80);
+		this.moveArea(420, 320, 80, 80);
 
 		//敵對目標
 		enemy = this.enemy_cir(200, 275, 2*r, "rgb(255,0,0)");
@@ -182,7 +195,11 @@
 		{
 			clearInterval(emLoopAct);
 			clearInterval(loopAct);
+			$("#bgm").trigger("pause");
+			$("#fam").trigger("play");
 			$("#msg_mask_f").show();
+			$("#msg_mask_f").css("z-index", "100");
+
 			return;
 		}
 
@@ -246,7 +263,10 @@
 		if(collideCheck(map, pX, pY, 12, 0.5, 0, 255, 0))
 		{
 			clearInterval(loopAct);
+			$("#bgm").trigger("pause");
+			$("#sam").trigger("play");
 			$("#msg_mask_s").show();
+			$("#msg_mask_s").css("z-index","100");
 		}
 
 		c.clearRect(0, 0, canvas[0].width, canvas[0].height);

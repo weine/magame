@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | environments.
 |
 */
-$config['base_url'] = 'http://192.168.1.107/magame/';
+$config['base_url'] = 'http://10.1.184.58/magame/';
 
 /*
 |--------------------------------------------------------------------------
